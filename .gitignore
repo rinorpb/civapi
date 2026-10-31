@@ -10,6 +10,9 @@
 # IDEA folder
 .idea/
 
+# User settings
+*.[Dd]ot[Ss]ettings.user
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

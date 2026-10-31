@@ -1,11 +1,11 @@
 @Civapi_HostAddress = http://localhost:5212
 
-GET {{Civapi_HostAddress}}/todos/
+GET {{Civapi_HostAddress}}/documents/
 Accept: application/json
 
 ###
 
-GET {{Civapi_HostAddress}}/todos/1
+GET {{Civapi_HostAddress}}/documents/1
 Accept: application/json
 
 ###

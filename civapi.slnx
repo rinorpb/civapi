@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="Civapi.Tests/Civapi.Tests.csproj" />
+  <Project Path="Civapi/Civapi.csproj" />
+</Solution>

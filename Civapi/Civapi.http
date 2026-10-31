@@ -9,3 +9,14 @@ GET {{Civapi_HostAddress}}/todos/1
 Accept: application/json
 
 ###
+
+POST {{Civapi_HostAddress}}/classify
+Accept: application/json
+Content-Type: application/json
+
+{
+"fileName": "test.pdf",
+"content": "blahblah"
+}
+
+###

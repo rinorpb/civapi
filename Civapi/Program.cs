@@ -18,30 +18,29 @@ if (app.Environment.IsDevelopment())
     app.MapOpenApi();
 }
 
-Todo[] sampleTodos =
+Document[] sampleDocs =
 [
-    new(1, "Walk the dog"),
-    new(2, "Do the dishes", DateOnly.FromDateTime(DateTime.Now)),
-    new(3, "Do the laundry", DateOnly.FromDateTime(DateTime.Now.AddDays(1))),
-    new(4, "Clean the bathroom"),
-    new(5, "Clean the car", DateOnly.FromDateTime(DateTime.Now.AddDays(2)))
+    new(1, "Concert Flyer", DateOnly.FromDateTime(DateTime.Now), null, "public"),
+    new(2, "ERD", DateOnly.FromDateTime(DateTime.Now).AddDays(-89), null, "internal"),
+    new(3, "John Doe Cover Letter", DateOnly.FromDateTime(DateTime.Now).AddDays(-12), DateOnly.FromDateTime(DateTime.Now).AddMonths(1), "personal"),
+    new(4, "Ann Doe blood test", DateOnly.FromDateTime(DateTime.Now).AddDays(-4), DateOnly.FromDateTime(DateTime.Now).AddMonths(1), "sensitive"),
 ];
 
-var todosApi = app.MapGroup("/todos");
-todosApi.MapGet("/", () => sampleTodos)
-        .WithName("GetTodos");
+var documentsApi = app.MapGroup("/documents");
+documentsApi.MapGet("/", () => sampleDocs)
+        .WithName("GetDocuments");
 
-todosApi.MapGet("/{id}", Results<Ok<Todo>, NotFound> (int id) =>
-    sampleTodos.FirstOrDefault(a => a.Id == id) is { } todo
-        ? TypedResults.Ok(todo)
+documentsApi.MapGet("/{id}", Results<Ok<Document>, NotFound> (int id) =>
+    sampleDocs.FirstOrDefault(a => a.Id == id) is { } doc
+        ? TypedResults.Ok(doc)
         : TypedResults.NotFound())
-    .WithName("GetTodoById");
+    .WithName("GetDocumentById");
 
 app.Run();
 
-public record Todo(int Id, string? Title, DateOnly? DueBy = null, bool IsComplete = false);
+public record Document(int Id, string? Title, DateOnly UploadDate, DateOnly? TerminationDate = null, string AccessLevel = "internal");
 
-[JsonSerializable(typeof(Todo[]))]
+[JsonSerializable(typeof(Document[]))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext
 {
 

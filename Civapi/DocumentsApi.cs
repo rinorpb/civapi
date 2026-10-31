@@ -24,4 +24,6 @@ public static class DocumentsApi
                     : TypedResults.NotFound())
             .WithName("GetDocumentById");
     }
+    
+    public record Document(int Id, string? Title, string Path, DateOnly UploadDate, DateOnly? TerminationDate = null, string AccessLevel = "internal");
 }

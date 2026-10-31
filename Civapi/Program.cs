@@ -1,7 +1,5 @@
-using System.Runtime.CompilerServices;
 using System.Text.Json.Serialization;
 using Civapi;
-using Microsoft.AspNetCore.Http.HttpResults;
 
 var builder = WebApplication.CreateSlimBuilder(args);
 
@@ -25,9 +23,7 @@ app.ConfigureClassifyApi();
 
 app.Run();
 
-public record Document(int Id, string? Title, string Path, DateOnly UploadDate, DateOnly? TerminationDate = null, string AccessLevel = "internal");
-
-[JsonSerializable(typeof(Document[]))]
+[JsonSerializable(typeof(DocumentsApi.Document[]))]
 [JsonSerializable(typeof(ClassifyApi.Candidate))]
 internal partial class AppJsonSerializerContext : JsonSerializerContext
 {

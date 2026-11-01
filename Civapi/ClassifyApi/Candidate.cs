@@ -1,5 +1,5 @@
 ﻿public class Candidate
 {
-    private string FileName { get; set; }
-    private string Content { get; set; }
+    public string FileName { get; set; }
+    public string Content { get; set; }
 }

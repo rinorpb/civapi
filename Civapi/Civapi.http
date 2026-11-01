@@ -1,4 +1,4 @@
-@Civapi_HostAddress = http://localhost:5212
+@Civapi_HostAddress = http://localhost:5073
 
 GET {{Civapi_HostAddress}}/documents/
 Accept: application/json

@@ -10,6 +10,17 @@ Accept: application/json
 
 ###
 
+POST {{Civapi_HostAddress}}/documents
+Accept: application/json
+Content-Type: application/json
+
+{
+  "fileName": "newDoc.pdf",
+  "accessLevel": "public"
+}
+
+###
+
 POST {{Civapi_HostAddress}}/classify
 Accept: application/json
 Content-Type: application/json

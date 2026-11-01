@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Http.HttpResults;
+using Microsoft.EntityFrameworkCore;
 
 namespace Civapi;
 
@@ -25,5 +26,20 @@ public static class DocumentsApi
                         ? Results.Ok(todo) 
                         : Results.NotFound())
             .WithName("GetDocumentById");
+
+        documentsApi.MapPost("/", async (Document document, DocumentDb db) =>
+        {
+            document.DaysToSave ??= 0; // if null, set 0 (save indefinitely)
+            if (document.DaysToSave < 0) return Results.BadRequest();
+            
+            document.UploadDate = DateOnly.FromDateTime(DateTime.Now);
+            document.Path = $"{document.AccessLevel}/{document.FileName}";
+            
+            db.Documents.Add(document);
+            //todo: try to save document
+            await db.SaveChangesAsync();
+            
+            return TypedResults.Created($"/documents/{document.Id}", document);
+        });
     }
 }

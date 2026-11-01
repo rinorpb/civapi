@@ -14,26 +14,31 @@ public static class ClassifyApi
         {
             if (!ValidateFiletype(candidate.FileName, acceptedFileTypes)) return TypedResults.BadRequest();
             if (candidate.Content.Length > 200) return TypedResults.BadRequest();
-            return TypedResults.Ok(new ClassifyResult("internal"));
+            return TypedResults.Ok(Classify(candidate.Content));
         });
     }
 
-    struct ClassifyResult(string result)
+    static ClassifyResult Classify(string content)
     {
-        public string result;
-    }
-
-    static string Classify(string content)
-    {
-        //personal information check
-        //email
-        Regex emailPattern = new Regex("");
-        //national registry
-        Regex nationalRegistryPattern = new Regex("");
-        
         //sensitive information check
         
-        return "internal";
+        //personal information check
+        //email
+        Regex emailPattern = new Regex("""
+                                       /"*[!#$%&'*+\-/=?^_`{|}~\.\w]+"*@\[*[\w\-\.:]+\]*/
+                                       """); // "*[!#$%&'*+\-/=?^_`{|}~\.\w]+"*@\[*[\w\-\.:]+\]*
+        //national registry
+        Regex nationalRegistryPattern = new Regex(@"\d\d.\d\d.\d\d-\d\d\d.\d\d"); // \d\d.\d\d.\d\d-\d\d\d.\d\d
+        
+        List<Regex> patterns =
+        [
+            //emailPattern,
+            nationalRegistryPattern
+        ];
+
+        if (patterns.Any(regex => regex.IsMatch(content))) return new ClassifyResult("personal");
+        
+        return new ClassifyResult("unrestricted");
     }
     
     static string[] acceptedFileTypes = { "pdf", "docx", "odt", "txt" };

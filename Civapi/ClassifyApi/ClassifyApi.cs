@@ -14,6 +14,4 @@ public static class ClassifyApi
             return TypedResults.BadRequest();
         });
     }
-
-    public record Candidate(string FileName, string Content);
 }

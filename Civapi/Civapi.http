@@ -64,3 +64,14 @@ Content-Type: application/json
 }
 
 ###
+
+POST {{Civapi_HostAddress}}/classify
+Accept: application/json
+Content-Type: application/json
+
+{
+  "fileName": "medicalrecord.txt",
+  "content": "bij deze dus het medisch verslag van Ann Doe:"
+}
+
+###

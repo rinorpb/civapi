@@ -21,6 +21,20 @@ public static class ClassifyApi
     static ClassifyResult Classify(string content)
     {
         //sensitive information check
+        string[] triggerWords =
+        {
+            "medisch verslag",
+            "diagnose",
+            "strafrechtelijk",
+            "medical report",
+            "diagnosis",
+            "judicial"
+        };
+
+        foreach (var triggerWord in triggerWords)
+        {
+            if (content.Contains(triggerWord)) return new ClassifyResult("sensitive");
+        }
         
         //personal information check
         //email

@@ -37,16 +37,16 @@ public static class ClassifyApi
         }
         
         //personal information check
-        //email
+        //email, basic regex, doesn't match EVERY email according to the standard but most
         Regex emailPattern = new Regex("""
-                                       /"*[!#$%&'*+\-/=?^_`{|}~\.\w]+"*@\[*[\w\-\.:]+\]*/
-                                       """); // "*[!#$%&'*+\-/=?^_`{|}~\.\w]+"*@\[*[\w\-\.:]+\]*
+                                       "*[\w!#$%&'*+/=?^_`{|}~.-]+"*@\[*[\w.:-]+\]*
+                                       """);
         //national registry
         Regex nationalRegistryPattern = new Regex(@"\d\d.\d\d.\d\d-\d\d\d.\d\d"); // \d\d.\d\d.\d\d-\d\d\d.\d\d
         
         List<Regex> patterns =
         [
-            //emailPattern,
+            emailPattern,
             nationalRegistryPattern
         ];
 

@@ -27,18 +27,18 @@ try
         .AddPolicy("upload", policy =>
             policy
                 .RequireRole("admin", "employee"))
-        .AddPolicy("sensitive", policy =>
+        .AddPolicy(AccessLevels.Sensitive, policy =>
             policy
                 .RequireRole("admin")
-                .RequireClaim("scope", "sensitive"))
-        .AddPolicy("personal", policy =>
-            policy
-                .RequireRole("admin")
-                .RequireClaim("scope", "personal"))
-        .AddPolicy("internal", policy =>
+                .RequireClaim("scope", AccessLevels.Sensitive))
+        .AddPolicy(AccessLevels.Personal, policy =>
             policy
                 .RequireRole("admin", "employee")
-                .RequireClaim("scope", "internal"));
+                .RequireClaim("scope", AccessLevels.Personal))
+        .AddPolicy(AccessLevels.Internal, policy =>
+            policy
+                .RequireRole("admin", "employee")
+                .RequireClaim("scope", AccessLevels.Internal));
 
     var app = builder.Build();
     

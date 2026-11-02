@@ -10,11 +10,11 @@ public static class ClassifyApi
     {
         var documentsApi = app.MapGroup("/classify");
 
-        documentsApi.MapPost("/", Results<Ok<ClassifyResult>, BadRequest> (Candidate candidate) =>
+        documentsApi.MapPost("/", (Candidate candidate) =>
         {
-            if (!ValidateFiletype(candidate.FileName, acceptedFileTypes)) return TypedResults.BadRequest();
-            if (candidate.Content.Length > 200) return TypedResults.BadRequest();
-            return TypedResults.Ok(Classify(candidate.Content));
+            if (!ValidateFiletype(candidate.FileName, acceptedFileTypes)) return Results.BadRequest();
+            if (candidate.Content.Length > 200) return Results.BadRequest();
+            return Results.Ok(Classify(candidate.Content));
         });
     }
 

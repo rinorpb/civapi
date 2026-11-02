@@ -17,14 +17,14 @@ public static class DocumentsApi
         
         var documentsApi = app.MapGroup("/documents");
         
-        documentsApi.MapGet("/", async (DocumentDb db) => await db.Documents.Where(doc => doc.AccessLevel == "public").ToListAsync())
+        documentsApi.MapGet("/", async (DocumentDb db) => await db.Documents.Where(doc => doc.AccessLevel == AccessLevels.Public).ToListAsync())
             .WithName("GetDocuments");
 
         documentsApi.MapGet("/{id}", async (HttpContext context, long id, DocumentDb db) =>
             {
                 Document doc = await db.Documents.FindAsync(id);
                 if (doc == null) return Results.NotFound();
-                if (doc.AccessLevel == "public") return Results.Ok(doc);
+                if (doc.AccessLevel == AccessLevels.Public) return Results.Ok(doc);
                 if (context.User.HasClaim("scope", doc.AccessLevel)) return Results.Ok(doc);
                 return Results.Unauthorized();
             })
@@ -34,6 +34,8 @@ public static class DocumentsApi
         {
             document.DaysToSave ??= 0; // if null, set 0 (save indefinitely)
             if (document.DaysToSave < 0) return Results.BadRequest();
+
+            if (!AccessLevels.IsValidAccessLevel(document.AccessLevel)) return Results.BadRequest();
             
             document.UploadDate = DateOnly.FromDateTime(DateTime.Now);
             document.Path = $"{document.AccessLevel}/{document.FileName}";
@@ -42,7 +44,7 @@ public static class DocumentsApi
             //todo: try to save document
             await db.SaveChangesAsync();
             
-            return TypedResults.Created($"/documents/{document.Id}", document);
+            return Results.Created($"/documents/{document.Id}", document);
         }).RequireAuthorization("upload");
     }
 }

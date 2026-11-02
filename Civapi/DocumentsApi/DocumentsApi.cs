@@ -17,14 +17,17 @@ public static class DocumentsApi
         
         var documentsApi = app.MapGroup("/documents");
         
-        documentsApi.MapGet("/", async (DocumentDb db) => await db.Documents.ToListAsync())
+        documentsApi.MapGet("/", async (DocumentDb db) => await db.Documents.Where(doc => doc.AccessLevel == "public").ToListAsync())
             .WithName("GetDocuments");
 
-        documentsApi.MapGet("/{id}", async (long id, DocumentDb db) => 
-                await db.Documents.FindAsync(id) 
-                    is { } todo 
-                        ? Results.Ok(todo) 
-                        : Results.NotFound())
+        documentsApi.MapGet("/{id}", async (HttpContext context, long id, DocumentDb db) =>
+            {
+                Document doc = await db.Documents.FindAsync(id);
+                if (doc == null) return Results.NotFound();
+                if (doc.AccessLevel == "public") return Results.Ok(doc);
+                if (context.User.HasClaim("scope", doc.AccessLevel)) return Results.Ok(doc);
+                return Results.Unauthorized();
+            })
             .WithName("GetDocumentById");
 
         documentsApi.MapPost("/", async (Document document, DocumentDb db) =>
@@ -40,6 +43,6 @@ public static class DocumentsApi
             await db.SaveChangesAsync();
             
             return TypedResults.Created($"/documents/{document.Id}", document);
-        });
+        }).RequireAuthorization("upload");
     }
 }

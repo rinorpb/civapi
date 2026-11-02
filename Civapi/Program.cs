@@ -24,18 +24,21 @@ try
     builder.Services.AddAuthorization();
 
     builder.Services.AddAuthorizationBuilder()
+        .AddPolicy("upload", policy =>
+            policy
+                .RequireRole("admin", "employee"))
         .AddPolicy("sensitive", policy =>
             policy
                 .RequireRole("admin")
-                .RequireClaim("scope", "documents_sensitive"))
+                .RequireClaim("scope", "sensitive"))
         .AddPolicy("personal", policy =>
             policy
                 .RequireRole("admin")
-                .RequireClaim("scope", "documents_personal")).
-        AddPolicy("internal", policy =>
+                .RequireClaim("scope", "personal"))
+        .AddPolicy("internal", policy =>
             policy
                 .RequireRole("admin", "employee")
-                .RequireClaim("scope", "documents_internal"));
+                .RequireClaim("scope", "internal"));
 
     var app = builder.Build();
     

@@ -20,10 +20,28 @@ try
     builder.Services.AddDbContext<DocumentDb>(opt =>
         opt.UseInMemoryDatabase("Documents"));
     builder.Services.AddSerilog();
+    builder.Services.AddAuthentication().AddJwtBearer();
+    builder.Services.AddAuthorization();
+
+    builder.Services.AddAuthorizationBuilder()
+        .AddPolicy("sensitive", policy =>
+            policy
+                .RequireRole("admin")
+                .RequireClaim("scope", "documents_sensitive"))
+        .AddPolicy("personal", policy =>
+            policy
+                .RequireRole("admin")
+                .RequireClaim("scope", "documents_personal")).
+        AddPolicy("internal", policy =>
+            policy
+                .RequireRole("admin", "employee")
+                .RequireClaim("scope", "documents_internal"));
 
     var app = builder.Build();
     
     app.UseSerilogRequestLogging();
+    app.UseAuthentication();
+    app.UseAuthorization();
 
     // Configure the HTTP request pipeline.
     if (app.Environment.IsDevelopment())

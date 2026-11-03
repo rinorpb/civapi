@@ -19,7 +19,7 @@ public static class ClassifyApi
         });
     }
 
-    static ClassifyResult Classify(Candidate input)
+    public static ClassifyResult Classify(Candidate input)
     {
         ClassifyResult result = new ClassifyResult("unrestricted");
         

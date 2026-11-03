@@ -1,6 +1,7 @@
 ﻿using System.Text.RegularExpressions;
 using System.Text.Json;
 using Microsoft.AspNetCore.Http.HttpResults;
+using Serilog;
 
 namespace Civapi;
 
@@ -14,27 +15,13 @@ public static class ClassifyApi
         {
             if (!ValidateFiletype(candidate.FileName, acceptedFileTypes)) return Results.BadRequest();
             if (candidate.Content.Length > 200) return Results.BadRequest();
-            return Results.Ok(Classify(candidate.Content));
+            return Results.Ok(Classify(candidate));
         });
     }
 
-    static ClassifyResult Classify(string content)
+    static ClassifyResult Classify(Candidate input)
     {
-        //sensitive information check
-        string[] triggerWords =
-        {
-            "medisch verslag",
-            "diagnose",
-            "strafrechtelijk",
-            "medical report",
-            "diagnosis",
-            "judicial"
-        };
-
-        foreach (var triggerWord in triggerWords)
-        {
-            if (content.Contains(triggerWord)) return new ClassifyResult("sensitive");
-        }
+        ClassifyResult result = new ClassifyResult("unrestricted");
         
         //personal information check
         //email, basic regex, doesn't match EVERY email according to the standard but most
@@ -50,9 +37,31 @@ public static class ClassifyApi
             nationalRegistryPattern
         ];
 
-        if (patterns.Any(regex => regex.IsMatch(content))) return new ClassifyResult("personal");
+        if (patterns.Any(regex => regex.IsMatch(input.Content))) result = new ClassifyResult("personal");
         
-        return new ClassifyResult("unrestricted");
+        //sensitive information check
+        string[] triggerWords =
+        {
+            "medisch verslag",
+            "diagnose",
+            "strafrechtelijk",
+            "medical report",
+            "diagnosis",
+            "judicial"
+        };
+
+        foreach (var triggerWord in triggerWords)
+        {
+            if (input.Content.Contains(triggerWord))
+            {
+                result = new ClassifyResult("sensitive");
+                break;
+            }
+        }
+        
+        Log.Information("classify: {FileName} as {Result}", input.FileName, result.Result);
+
+        return result;
     }
     
     static string[] acceptedFileTypes = { "pdf", "docx", "odt", "txt" };

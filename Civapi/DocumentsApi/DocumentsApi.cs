@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 namespace Civapi;
 
@@ -7,30 +8,38 @@ public static class DocumentsApi
 {
     public static void ConfigureDocumentsApi(this IEndpointRouteBuilder app)
     {
-        /*Document[] sampleDocs =
-        [
-            new(1, "Concert Flyer", "public/concertflyer.pdf", DateOnly.FromDateTime(DateTime.Now), null, "public"),
-            new(2, "ERD", "internal/erd.pdf", DateOnly.FromDateTime(DateTime.Now).AddDays(-89), null, "internal"),
-            new(3, "John Doe Cover Letter", "personal/johndoe.docx", DateOnly.FromDateTime(DateTime.Now).AddDays(-12), DateOnly.FromDateTime(DateTime.Now).AddMonths(1), "personal"),
-            new(4, "Ann Doe blood test", "sensitive/anndoe.pdf", DateOnly.FromDateTime(DateTime.Now).AddDays(-4), DateOnly.FromDateTime(DateTime.Now).AddMonths(1), "sensitive"),
-        ];*/
-        
         var documentsApi = app.MapGroup("/documents");
         
-        documentsApi.MapGet("/", async (DocumentDb db) => await db.Documents.Where(doc => doc.AccessLevel == AccessLevels.Public).ToListAsync())
+        documentsApi.MapGet("/", async (DocumentDb db) =>
+            {
+                List<Document> result = await db.Documents.Where(doc => doc.AccessLevel == AccessLevels.Public).ToListAsync();
+                Log.Information("documents: Fetched {Count} public documents", result.Count);
+                return result;
+            })
             .WithName("GetDocuments");
 
         documentsApi.MapGet("/{id}", async (HttpContext context, long id, DocumentDb db) =>
             {
                 Document doc = await db.Documents.FindAsync(id);
                 if (doc == null) return Results.NotFound();
-                if (doc.AccessLevel == AccessLevels.Public) return Results.Ok(doc);
-                if (context.User.HasClaim(claim => (claim.Type == "scope") && claim.Value.Split(" ").Contains(doc.AccessLevel))) return Results.Ok(doc);
+                if (doc.AccessLevel == AccessLevels.Public)
+                {
+                    Log.Information("documents: Fetched {DocName} ({DocAccess} by id {DocId})", doc.FileName, doc.AccessLevel, doc.Id);
+                    return Results.Ok(doc);
+                }
+
+                if (context.User.HasClaim(claim => (claim.Type == "scope") && claim.Value.Split(" ").Contains(doc.AccessLevel)))
+                {
+                    Log.Information("documents: Fetched {DocName} ({DocAccess} by id {DocId}", doc.FileName, doc.AccessLevel, doc.Id);
+                    return Results.Ok(doc);
+                }
+                
+                Log.Information("documents: Unauthorized fetch attempt {DocName} ({DocAccess} by id {DocId}", doc.Id);
                 return Results.Unauthorized();
             })
             .WithName("GetDocumentById");
 
-        documentsApi.MapPost("/", async (Document document, DocumentDb db) =>
+        documentsApi.MapPost("/", async (HttpContext context, Document document, DocumentDb db) =>
         {
             document.DaysToSave ??= 0; // if null, set 0 (save indefinitely)
             if (document.DaysToSave < 0) return Results.BadRequest();
@@ -43,6 +52,8 @@ public static class DocumentsApi
             db.Documents.Add(document);
             //todo: try to save document
             await db.SaveChangesAsync();
+            
+            Log.Information("documents: Saved {DocName} ({DocAccess}) at {DocPath} with id {DocId} by {User}", document.FileName, document.AccessLevel, document.Path, document.Id, context.User.Identity.Name);
             
             return Results.Created($"/documents/{document.Id}", document);
         }).RequireAuthorization("upload");

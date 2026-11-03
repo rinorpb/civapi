@@ -43,6 +43,17 @@ Content-Type: application/json
   "accessLevel": "public"
 }
 
+###
+
+POST {{Civapi_HostAddress}}/documents
+Accept: application/json
+Authorization: Bearer {{JWTBearer}}
+Content-Type: application/json
+
+{
+  "fileName": "invalidAccess.pdf",
+  "accessLevel": "restricted"
+}
 
 ###
 

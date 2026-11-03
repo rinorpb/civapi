@@ -36,6 +36,16 @@ public class CivapiClassifyApi_ClassifyShould
     }
     
     [Fact]
+    public void ClassifyApi_InputContainsEmailNationalRegistry_ReturnPersonal()
+    {
+        Candidate input = new Candidate();
+        input.FileName = "personal.pdf";
+        input.Content = "This document does indeed contain 11.11.11-111.11, which is the shape of a Belgian national registry number AND jane.doe@example.com, which follows the email address standard.";
+        ClassifyResult result = ClassifyApi.Classify(input);
+        Assert.Equal("personal", result.Result);
+    }
+    
+    [Fact]
     public void ClassifyApi_InputIsSensitive_ReturnSensitive()
     {
         Candidate input = new Candidate();

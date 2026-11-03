@@ -13,8 +13,8 @@ public static class ClassifyApi
 
         documentsApi.MapPost("/", (Candidate candidate) =>
         {
-            if (!ValidateFiletype(candidate.FileName, acceptedFileTypes)) return Results.BadRequest();
-            if (candidate.Content.Length > 200) return Results.BadRequest();
+            if (!ValidateFiletype(candidate.FileName, acceptedFileTypes)) return Results.BadRequest("Invalid file type");
+            if (candidate.Content.Length > 200) return Results.BadRequest("File size is too big");
             return Results.Ok(Classify(candidate));
         });
     }

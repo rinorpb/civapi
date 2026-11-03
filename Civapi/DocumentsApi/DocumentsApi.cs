@@ -42,9 +42,9 @@ public static class DocumentsApi
         documentsApi.MapPost("/", async (HttpContext context, Document document, DocumentDb db) =>
         {
             document.DaysToSave ??= 0; // if null, set 0 (save indefinitely)
-            if (document.DaysToSave < 0) return Results.BadRequest();
+            if (document.DaysToSave < 0) return Results.BadRequest("DaysToSave must be 0 (indefinite time) or greater");
 
-            if (!AccessLevels.IsValidAccessLevel(document.AccessLevel)) return Results.BadRequest();
+            if (!AccessLevels.IsValidAccessLevel(document.AccessLevel)) return Results.BadRequest($"Invalid AccessLevel. Accepted values: {AccessLevels.Public}, {AccessLevels.Internal}, {AccessLevels.Personal}, {AccessLevels.Sensitive}");
             
             document.UploadDate = DateOnly.FromDateTime(DateTime.Now);
             document.Path = $"{document.AccessLevel}/{document.FileName}";

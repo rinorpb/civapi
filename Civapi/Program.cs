@@ -1,5 +1,4 @@
 using Civapi;
-using Microsoft.EntityFrameworkCore;
 using Serilog;
 using Serilog.Events;
 

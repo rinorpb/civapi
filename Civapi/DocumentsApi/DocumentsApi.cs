@@ -25,7 +25,7 @@ public static class DocumentsApi
                 Document doc = await db.Documents.FindAsync(id);
                 if (doc == null) return Results.NotFound();
                 if (doc.AccessLevel == AccessLevels.Public) return Results.Ok(doc);
-                if (context.User.HasClaim("scope", doc.AccessLevel)) return Results.Ok(doc);
+                if (context.User.HasClaim(claim => (claim.Type == "scope") && claim.Value.Split(" ").Contains(doc.AccessLevel))) return Results.Ok(doc);
                 return Results.Unauthorized();
             })
             .WithName("GetDocumentById");

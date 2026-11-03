@@ -13,6 +13,10 @@
 # User settings
 *.[Dd]ot[Ss]ettings.user
 
+# SQLite temp files
+*-shm
+*-wal
+
 # Build results
 [Dd]ebug/
 [Dd]ebugPublic/

@@ -17,8 +17,11 @@ try
     // Add services to the container.
     // Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
     builder.Services.AddOpenApi();
-    builder.Services.AddDbContext<DocumentDb>(opt =>
-        opt.UseInMemoryDatabase("Documents"));
+    
+    //database config
+    string? connectionString = builder.Configuration.GetConnectionString("DocumentsDatabase") ?? "Data Source=Documents.db";
+    builder.Services.AddSqlite<DocumentDb>(connectionString);
+    
     builder.Services.AddSerilog();
     builder.Services.AddAuthentication().AddJwtBearer();
     builder.Services.AddAuthorization();
